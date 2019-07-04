@@ -4,7 +4,7 @@ import sys
 import cv2
 import Image, ImageTk
 i = 5
-
+x = 1
 
 def quit_func():
     sys.exit()
@@ -51,42 +51,82 @@ cap_var = IntVar()
 
 def show_map():
 
+
     MAP  = Toplevel()
+    f1 = Frame(MAP)
+    f2 = Frame(MAP)
+    f1.pack(side = LEFT)
+    f2.pack(side = LEFT)
+    start_coord = StringVar()
+    start_coord.set("                      ")
+
+    end_coord = StringVar()
+    end_coord.set("                     ")
 
     def start_pos():
-        MAP.quit()
+        global x
+        x = 0
+        print(x)
     def end_pos():
-        MAP.quit()
+        global x
+        x = 1
+        print(x)
     def close_window():
         print "Window closed"
         MAP.destroy()
 
+    def send_data():
+        print("Will send data")
+        MAP.destroy()
 
-    PhotoImage(master = MAP, width = 500, height = 700)
-    canvas = Canvas(MAP,width = 450,height = 670)
+    PhotoImage(master = f1, width = 500, height = 700)
+    canvas = Canvas(f1,width = 450,height = 670)
     canvas.grid(row=0, column=0,sticky=N+S+E+W)
     File = '/home/paresh/Pictures/map.jpeg'
     img = ImageTk.PhotoImage(Image.open(File))
     canvas.create_image(0,0,image=img,anchor="nw")
     #canvas.config(scrollregion=canvas.bbox(ALL))
-    start = Button(MAP,text = "Starting Point",font = ('TimeRomans',10,'bold'),bg = "magenta")
-    finish = Button(MAP,text = "Ending Point",font = ('TimeRomans',10,'bold'),bg = "magenta")
 
-    start.grid(row = 0,column= 2)
-    finish.grid(row = 0, column = 3)
-    MAP.protocol("WM_DELETE_WINDOW", close_window)
+    start = Button(f2,text = "Starting Point",font = ('TimeRomans',10,'bold'),bg = "yellow")
+    finish = Button(f2,text = "Ending Point",font = ('TimeRomans',10,'bold'),bg = "yellow")
+    send = Button(f2,text = "Send data",font = ('TimeRomans',15,'bold'),bg = "green")
+
+    start_coord_label = Label(f2,textvariable = start_coord, font = ('TimeRomans',10,'bold'),bg = "yellow")
+    end_coord_label = Label(f2,textvariable = end_coord, font = ('TimeRomans',10,'bold'),bg = "yellow")
+
+
+    start.grid(row = 0,column= 2,sticky = W+E+N+S)
+    finish.grid(row = 1, column = 2,sticky = W+E+N+S)
+    start_coord_label.grid(row = 0, column = 3,sticky = W+E+N+S)
+    end_coord_label.grid(row = 1, column = 3,sticky = W+E+N+S)
+    send.grid(row = 5, column = 4,sticky = W+E+N+S)
+    #MAP.protocol("WM_DELETE_WINDOW", close_window)
 
     start.configure(command = start_pos)
     finish.configure(command = end_pos)
+    send.configure(command = send_data)
 
 
-
-    def printcoords(edvent):
+    def printcoords(event):
         #outputting x and y coords to console
-        print (edvent.x,edvent.y)
-    #mouseclick event
+        global x
+        print (event.x,event.y)
+        l = []
+        l.append(str(event.x))
+        l.append(str(event.y))
+        #print(type(event.x))
+
+        coord = ",".join(l)
+        print(coord)
+        if x == 0:
+            start_coord.set(coord)
+            x = 3
+        if x == 1:
+            x = 3
+            end_coord.set(coord)
+
+
     canvas.bind("<Button 1>",printcoords)
-    top.mainloop()
     MAP.mainloop()
 
 
@@ -129,6 +169,6 @@ cap.grid(row = 3,column = 1,sticky = W+E)
 cam.grid(row = 4,column = 1,sticky = W+E)
 map_loc.grid(row = 5,column = 1,sticky = W+E)
 
-#top.after(100, update)
-#MAP.mainloop()
+top.after(100, update)
+
 top.mainloop()
