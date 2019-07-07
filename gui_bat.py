@@ -3,24 +3,49 @@ import time
 import sys
 import cv2
 import Image, ImageTk
+import os
+import serial
+#ser = serial.Serial('/dev/ttyACM0') # Arduino
+
 i = 5
-x = 1
+x = 3
 
 def quit_func():
     sys.exit()
 
 
-def update():
+def update_vol_var():
     global i                          #To update values for batttery Capacity,Current,Voltage
     i = i+3
     vol_var.set(i)
     top.update()
     time.sleep(0.2)
-    #top.after(100,update)
+    top.after(2000, update_vol_var)
+
+
+
+def update_cur_var():
+    global i                          #To update values for batttery Capacity,Current,Voltage
+    i = i+3
+    cur_var.set(i)
+    top.update()
+    time.sleep(0.2)
+    top.after(3000, update_cur_var)
+
+
+def update_cap_var():
+    global i                          #To update values for batttery Capacity,Current,Voltage
+    i = i+3
+    cap_var.set(i)
+    top.update()
+    time.sleep(0.2)
+    top.after(5000, update_cap_var)
+
 
 
 def show_cam():
-    cv2.namedWindow("preview")
+    os.system("python /home/paresh/Atom/rasplapcam.py")
+'''    cv2.namedWindow("preview")
     vc = cv2.VideoCapture(0)
 
     if vc.isOpened():                      # Live Feed
@@ -39,7 +64,7 @@ def show_cam():
     vc.release()
 
 
-                              # exit
+    '''                          # exit
 
 
 
@@ -48,6 +73,7 @@ top.configure(bg = "light blue")
 vol_var = IntVar()
 cur_var = IntVar()
 cap_var = IntVar()
+l4 = []
 
 def show_map():
 
@@ -77,7 +103,12 @@ def show_map():
 
     def send_data():
         print("Will send data")
-        MAP.destroy()
+        print(l4)
+        coordinate_ard = ",".join(l4)
+        print(coordinate_ard)
+#        ser.write(coordinate_ard)
+
+        #MAP.destroy( )
 
     PhotoImage(master = f1, width = 500, height = 700)
     canvas = Canvas(f1,width = 450,height = 670)
@@ -110,19 +141,26 @@ def show_map():
     def printcoords(event):
         #outputting x and y coords to console
         global x
+        global l4
         print (event.x,event.y)
         l = []
+        l2 = []
+        l3 = []
         l.append(str(event.x))
         l.append(str(event.y))
         #print(type(event.x))
-
+        print(l)
         coord = ",".join(l)
         print(coord)
         if x == 0:
             start_coord.set(coord)
+            l2 = l[:]
+            l4 = l2[:]
             x = 3
         if x == 1:
+            l3 = l[:]
             x = 3
+            l4 = l4 + l3
             end_coord.set(coord)
 
 
@@ -133,6 +171,7 @@ def show_map():
 
 cur_var.set(i)
 vol_var.set(i)
+cap_var.set(i)
 top.grid_columnconfigure(2, minsize=100)
 top.grid_rowconfigure(2, minsize=20)  # Here
 bat_vol = Label(top,text = "Battery Voltage",font = ('TimeRomans',20,'bold'),bg = "light pink")
@@ -169,6 +208,8 @@ cap.grid(row = 3,column = 1,sticky = W+E)
 cam.grid(row = 4,column = 1,sticky = W+E)
 map_loc.grid(row = 5,column = 1,sticky = W+E)
 
-top.after(100, update)
+top.after(2000, update_vol_var)
+top.after(3000, update_cur_var)
+top.after(5000, update_cap_var)
 
 top.mainloop()
